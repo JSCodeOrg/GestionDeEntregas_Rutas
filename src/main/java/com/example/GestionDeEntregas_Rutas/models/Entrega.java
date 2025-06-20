@@ -24,13 +24,10 @@ public class Entrega {
 
     private LocalDate fechaSalida;
     private LocalDate fechaEntrega;
+    private String direccion;
     
     @Column(name = "id_estado")
     private Long estado_id;
-
-    @ManyToOne
-    @JoinColumn(name = "id_ruta")
-    private Ruta ruta_id;
 
     @Column(name = "id_pedido")
     private Long Pedido_id;
