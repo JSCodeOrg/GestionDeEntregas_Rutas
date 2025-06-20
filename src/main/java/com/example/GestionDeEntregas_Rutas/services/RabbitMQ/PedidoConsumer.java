@@ -1,7 +1,8 @@
 package com.example.GestionDeEntregas_Rutas.services.RabbitMQ;
 
-import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
+
+import com.example.GestionDeEntregas_Rutas.DTO.PedidoDTO;
 import com.example.GestionDeEntregas_Rutas.config.RabbitMQConfig;
 import org.springframework.stereotype.Service;
 
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Service;
 public class PedidoConsumer {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE)
-    public void recibirMensaje(String mensaje){
-        System.out.println("Pedido recibido:" + mensaje);
+    public void recibirMensaje(PedidoDTO pedido){
+        System.out.println("Pedido recibido:" + pedido.getId() + pedido.getShippingAddress());
     }
 }
