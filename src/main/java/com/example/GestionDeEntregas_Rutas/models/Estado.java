@@ -15,6 +15,7 @@ public class Estado {
 
     @Id
     @GeneratedValue(strategy = jakarta.persistence.GenerationType.IDENTITY)
+    
     private Long id_estado;
     
     private String nombre;

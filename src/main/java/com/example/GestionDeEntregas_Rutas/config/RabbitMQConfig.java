@@ -13,24 +13,28 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class RabbitMQConfig {
 
-    public static final String QUEUE = "cola_pedidos";
-    public static final String EXCHANGE = "exchange_pedidos";
-    public static final String ROUTING_KEY = "pedido.creado";
+    public static final String QUEUE_PEDIDOS = "cola_pedidos";
+    public static final String EXCHANGE_PEDIDOS = "exchange_pedidos";
+    public static final String ROUTING_KEY_PEDIDO_CREADO = "pedido.creado";
 
+    public static final String QUEUE_ENTREGAS = "cola_entregas";
+    public static final String EXCHANGE_ENTREGAS = "exchange_entregas";
+    public static final String ROUTING_KEY_ENTREGA_ASIGNADA = "entrega.asignada";
+    
     @Bean
     public Queue queue() {
-        return new Queue(QUEUE, true);
+        return new Queue(QUEUE_PEDIDOS, true);
 
     }
 
     @Bean
     public TopicExchange exchange() {
-        return new TopicExchange(EXCHANGE);
+        return new TopicExchange(EXCHANGE_PEDIDOS);
     }
 
     @Bean
     public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY);
+        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY_PEDIDO_CREADO);
     }
 
     @Bean

@@ -6,8 +6,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import lombok.Getter;
 import lombok.Setter;
 import jakarta.persistence.Table;
@@ -23,12 +21,14 @@ public class Entrega {
     private Long id_entrega;
 
     private LocalDate fechaSalida;
+
     private LocalDate fechaEntrega;
-    private String direccion;
     
+    private String direccion;
+
     @Column(name = "id_estado")
-    private Long estado_id;
+    private Long estadoId;
 
     @Column(name = "id_pedido")
-    private Long Pedido_id;
+    private Long pedidoId;
 }

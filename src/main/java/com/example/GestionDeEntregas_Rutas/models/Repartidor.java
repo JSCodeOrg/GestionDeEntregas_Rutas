@@ -19,9 +19,13 @@ public class Repartidor {
     private Long id_repartidor;
 
     private String nombre;
+
     private String licencia;
+    
     private String telefono;
 
     @OneToMany(mappedBy = "repartidor_id")
     private List<Asignacion> asignaciones;
+
+    private String estado;
 }
