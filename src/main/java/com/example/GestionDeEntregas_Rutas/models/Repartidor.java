@@ -16,12 +16,10 @@ import lombok.Setter;
 public class Repartidor {
     
     @Id
-    private Long id_repartidor;
+    private Long idRepartidor;
 
     private String nombre;
 
-    private String licencia;
-    
     private String telefono;
 
     @OneToMany(mappedBy = "repartidor_id")
