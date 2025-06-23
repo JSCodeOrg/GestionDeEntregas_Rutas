@@ -23,8 +23,7 @@ public class RepartidorService {
         
 
         repartidorRepository.save(repartidor);
-
         return repartidor;
     }
-
 }
+
