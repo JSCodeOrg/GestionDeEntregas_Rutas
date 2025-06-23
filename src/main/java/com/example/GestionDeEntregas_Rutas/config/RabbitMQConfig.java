@@ -21,20 +21,48 @@ public class RabbitMQConfig {
     public static final String EXCHANGE_ENTREGAS = "exchange_entregas";
     public static final String ROUTING_KEY_ENTREGA_ASIGNADA = "entrega.asignada";
     
+    // Nuevas constantes para notificaciones
+    public static final String QUEUE_NOTIFICACIONES = "cola_notificaciones";
+    public static final String ROUTING_KEY_NOTIFICACION_ASIGNACION = "notificacion.asignacion";
+    
     @Bean
-    public Queue queue() {
+    public Queue queuePedidos() {
         return new Queue(QUEUE_PEDIDOS, true);
-
     }
 
     @Bean
-    public TopicExchange exchange() {
+    public Queue queueEntregas() {
+        return new Queue(QUEUE_ENTREGAS, true);
+    }
+
+    @Bean
+    public Queue queueNotificaciones() {
+        return new Queue(QUEUE_NOTIFICACIONES, true);
+    }
+
+    @Bean
+    public TopicExchange exchangePedidos() {
         return new TopicExchange(EXCHANGE_PEDIDOS);
     }
 
     @Bean
-    public Binding binding(Queue queue, TopicExchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with(ROUTING_KEY_PEDIDO_CREADO);
+    public TopicExchange exchangeEntregas() {
+        return new TopicExchange(EXCHANGE_ENTREGAS);
+    }
+
+    @Bean
+    public Binding bindingPedidos(Queue queuePedidos, TopicExchange exchangePedidos) {
+        return BindingBuilder.bind(queuePedidos).to(exchangePedidos).with(ROUTING_KEY_PEDIDO_CREADO);
+    }
+
+    @Bean
+    public Binding bindingEntregas(Queue queueEntregas, TopicExchange exchangeEntregas) {
+        return BindingBuilder.bind(queueEntregas).to(exchangeEntregas).with(ROUTING_KEY_ENTREGA_ASIGNADA);
+    }
+
+    @Bean
+    public Binding bindingNotificaciones(Queue queueNotificaciones, TopicExchange exchangeEntregas) {
+        return BindingBuilder.bind(queueNotificaciones).to(exchangeEntregas).with(ROUTING_KEY_NOTIFICACION_ASIGNACION);
     }
 
     @Bean

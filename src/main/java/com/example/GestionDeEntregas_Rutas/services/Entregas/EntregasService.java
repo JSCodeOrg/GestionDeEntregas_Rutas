@@ -56,6 +56,7 @@ public class EntregasService {
             nueva_entrega.setEstadoId(estado_pendiente.getId_estado());
             nueva_entrega.setDireccion(pedido.getShippingAddress());
             nueva_entrega.setPedidoId(pedido.getId());
+            nueva_entrega.setUserId(pedido.getUserId());
 
             entregasRepository.save(nueva_entrega);
 
@@ -75,6 +76,7 @@ public class EntregasService {
             EntregaDTO dto = new EntregaDTO();
             dto.setId_entrega(entrega.getId_entrega());
             dto.setDireccion(entrega.getDireccion());
+            dto.setUser_id(entrega.getUserId());
 
             Estado estado = estadoRepository.findById(entrega.getEstadoId())
                     .orElseThrow(() -> new NotFoundException("No se ha encontrado el estado de un pedido"));
@@ -98,6 +100,7 @@ public class EntregasService {
             dto.setDireccion(entrega.getDireccion());
             dto.setEstado(estadoEntity.getNombre());
             dto.setPedido_id(entrega.getPedidoId());
+            dto.setUser_id(entrega.getUserId());
             return dto;
         });
     }
@@ -141,6 +144,8 @@ public class EntregasService {
             entregasRepository.save(entrega);
 
             entregaProducer.enviarEntregaAsignada(pedido_id);
+
+            entregaProducer.enviarNotificacionAsignacion(pedido_id, entrega.getUserId());
 
             AsignacionDTO asignacionDTO = new AsignacionDTO();
             asignacionDTO.setEntrega_id(pedido_id);

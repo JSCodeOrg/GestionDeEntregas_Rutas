@@ -17,7 +17,7 @@ public class PedidoConsumer {
 
     @RabbitListener(queues = RabbitMQConfig.QUEUE_PEDIDOS)
     public void recibirMensaje(PedidoDTO pedido) {
-        System.out.println("Pedido recibido:" + pedido.getId() + pedido.getShippingAddress());
+        System.out.println("Pedido recibido:" + pedido.getId() + pedido.getShippingAddress() + pedido.getUserId());
 
         try {
             entregasService.crearEntrega(pedido);
