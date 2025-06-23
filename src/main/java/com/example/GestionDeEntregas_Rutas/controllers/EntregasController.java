@@ -26,17 +26,30 @@ public class EntregasController {
     private EntregasService entregasService;
 
     @GetMapping
-    public ResponseEntity<Page<EntregaDTO>> obtenerEntregas(@RequestParam(required = false) String estado,
-            @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "50") int size) {
+    public ResponseEntity<Page<EntregaDTO>> obtenerEntregas(
+            @RequestParam(required = false) String estado,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "50") int size,
+            @RequestParam(required = false) Boolean routing,
+            @RequestHeader("Authorization") String authToken) {
+
+        System.out.println("Parámetro routing:" + routing);
 
         Pageable pageable = PageRequest.of(page, size);
-
         Page<EntregaDTO> entregas;
 
-        if (estado != null && !estado.isEmpty()) {
+        if (Boolean.TRUE.equals(routing) && !authToken.isEmpty()) {
+            System.out.println("Se envia a la ruta de entregas");
+            System.out.println("Se envia a la ruta de entregas");
+            System.out.println("Se envia a la ruta de entregas");
+            String token = authToken.substring(7);
+            entregas = entregasService.obtenerRutaEntregas(token);
 
+        } else if (estado != null && !estado.isEmpty()) {
+            System.out.println("Aquí no debía entrar");
+            System.out.println("Aquí no debía entrar");
+            System.out.println("Aquí no debía entrar");
             entregas = entregasService.obtenerEntregasPorEstado(estado, pageable);
-
         } else {
             entregas = entregasService.obtenerEntregas(pageable);
         }
@@ -48,7 +61,8 @@ public class EntregasController {
     public ResponseEntity<?> asignarPedido(@RequestParam(required = true) Long pedido_id,
             @RequestHeader("Authorization") String authToken) {
 
-        System.out.println("Entró al endpoint");
+        System.out.println("Se recibe pedido con id" + pedido_id);
+        
         if (authToken == null || authToken.isEmpty()) {
             return ResponseEntity.badRequest().body("Se requiere el token del usuario");
         }
@@ -61,7 +75,7 @@ public class EntregasController {
             return ResponseEntity.ok("Orden de entrega asignada correctamente." + nueva_asignacion);
 
         } catch (Exception e) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "mensaje");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "mensaje" + e.getMessage());
 
         }
     }

@@ -20,11 +20,12 @@ public class RabbitMQConfig {
     public static final String QUEUE_ENTREGAS = "cola_entregas";
     public static final String EXCHANGE_ENTREGAS = "exchange_entregas";
     public static final String ROUTING_KEY_ENTREGA_ASIGNADA = "entrega.asignada";
-    
+
     // Nuevas constantes para notificaciones
     public static final String QUEUE_NOTIFICACIONES = "cola_notificaciones";
+    public static final String EXCHANGE_NOTIFICACIONES = "exchange_notificaciones";
     public static final String ROUTING_KEY_NOTIFICACION_ASIGNACION = "notificacion.asignacion";
-    
+
     @Bean
     public Queue queuePedidos() {
         return new Queue(QUEUE_PEDIDOS, true);
@@ -51,6 +52,11 @@ public class RabbitMQConfig {
     }
 
     @Bean
+    public TopicExchange exchangeNotificaciones() {
+        return new TopicExchange(EXCHANGE_NOTIFICACIONES);
+    }
+
+    @Bean
     public Binding bindingPedidos(Queue queuePedidos, TopicExchange exchangePedidos) {
         return BindingBuilder.bind(queuePedidos).to(exchangePedidos).with(ROUTING_KEY_PEDIDO_CREADO);
     }
@@ -61,8 +67,9 @@ public class RabbitMQConfig {
     }
 
     @Bean
-    public Binding bindingNotificaciones(Queue queueNotificaciones, TopicExchange exchangeEntregas) {
-        return BindingBuilder.bind(queueNotificaciones).to(exchangeEntregas).with(ROUTING_KEY_NOTIFICACION_ASIGNACION);
+    public Binding bindingNotificaciones(Queue queueNotificaciones, TopicExchange exchangeNotificaciones) {
+        return BindingBuilder.bind(queueNotificaciones).to(exchangeNotificaciones)
+                .with(ROUTING_KEY_NOTIFICACION_ASIGNACION);
     }
 
     @Bean
