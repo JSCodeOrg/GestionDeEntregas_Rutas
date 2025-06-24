@@ -2,6 +2,7 @@ package com.example.GestionDeEntregas_Rutas.services.Entregas;
 
 import java.util.Optional;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
@@ -13,7 +14,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 @Service
 public class GeocodingService {
 
-    private static final String API_KEY = "pk.74730f8fc7a98eb63e83bc024aa82d1f";
+    @Value("${locationiq.api-key}")
+    private String API_KEY;
     private final RestTemplate restTemplate = new RestTemplate();
 
     public Optional<double[]> geocode(String direccionOriginal) {
@@ -36,7 +38,7 @@ public class GeocodingService {
                     .fromUriString("https://us1.locationiq.com/v1/search")
                     .queryParam("key", API_KEY)
                     .queryParam("q", direccion)
-                    .queryParam("format", "json")   
+                    .queryParam("format", "json")
                     .queryParam("limit", 1)
                     .queryParam("countrycodes", "co")
                     .build()
@@ -49,7 +51,7 @@ public class GeocodingService {
             headers.setContentType(MediaType.APPLICATION_JSON);
             headers.set("User-Agent", "Mozilla/5.0");
             HttpEntity<String> entity = new HttpEntity<>(headers);
-            
+
             ResponseEntity<String> response = restTemplate.exchange(url, HttpMethod.GET, entity, String.class);
 
             System.out.println("🔍 Estado HTTP: " + response.getStatusCode());

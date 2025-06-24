@@ -35,6 +35,8 @@ spring:
         format_sql: true
         dialect: org.hibernate.dialect.PostgreSQLDialect
 
+locationiq:
+  api-key: ${LOCATIONIQ_API_KEY}
 
 
 management:
