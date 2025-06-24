@@ -79,4 +79,22 @@ public class EntregasController {
 
         }
     }
+
+    @PatchMapping("estado")
+    public ResponseEntity<?> actualizarEstadoEntrega(@RequestParam(required = true) Long id_entrega,
+            @RequestParam(required = true) String estado, @RequestHeader("Authorization") String authToken) {
+
+        if (authToken == null || authToken.isEmpty()) {
+            return ResponseEntity.badRequest().body("Se requiere el token del usuario");
+        }
+
+        String token = authToken.substring(7);
+
+        try {
+            EntregaDTO entregaActualizada = entregasService.actualizarEstadoEntrega(id_entrega, estado, token);
+            return ResponseEntity.ok(entregaActualizada);
+        } catch (Exception e) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "mensaje" + e.getMessage());
+        }
+    }
 }

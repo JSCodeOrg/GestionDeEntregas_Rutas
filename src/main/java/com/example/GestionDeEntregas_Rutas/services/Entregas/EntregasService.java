@@ -200,4 +200,27 @@ public class EntregasService {
 
         return new PageImpl<>(entregaDTOs);
     }
+
+    public EntregaDTO actualizarEstadoEntrega(Long id_entrega, String estado, String token) {
+        String user_id = jwtUtil.extractUsername(token);
+        Long user_id_long = Long.parseLong(user_id);
+
+        Entrega entrega = entregasRepository.findById(id_entrega)
+                .orElseThrow(() -> new NotFoundException("No se ha encontrado la entrega con el ID: " + id_entrega));
+
+        Estado estadoEntity = estadoRepository.findByNombre(estado)
+                .orElseThrow(() -> new NotFoundException("No se ha encontrado el estado: " + estado));
+
+        entrega.setEstadoId(estadoEntity.getId_estado());
+        entregasRepository.save(entrega);
+
+        EntregaDTO entregaDTO = new EntregaDTO();
+        entregaDTO.setId_entrega(entrega.getId_entrega());
+        entregaDTO.setDireccion(entrega.getDireccion());
+        entregaDTO.setEstado(estadoEntity.getNombre());
+        entregaDTO.setPedido_id(entrega.getPedidoId());
+        entregaDTO.setUser_id(entrega.getUserId());
+
+        return entregaDTO;
+    }
 }
