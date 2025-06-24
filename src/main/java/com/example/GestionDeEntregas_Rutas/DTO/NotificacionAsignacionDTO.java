@@ -8,4 +8,5 @@ import lombok.Setter;
 public class NotificacionAsignacionDTO {
     private Long orderId;
     private Long userId;
+    private String token;
 }
