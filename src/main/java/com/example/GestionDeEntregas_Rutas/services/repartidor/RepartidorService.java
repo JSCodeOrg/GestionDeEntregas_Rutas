@@ -20,7 +20,6 @@ public class RepartidorService {
         repartidor.setNombre(repartidorData.getName());
         repartidor.setTelefono(repartidorData.getPhone());
         repartidor.setEstado("ACTIVO");
-        
 
         repartidorRepository.save(repartidor);
         return repartidor;

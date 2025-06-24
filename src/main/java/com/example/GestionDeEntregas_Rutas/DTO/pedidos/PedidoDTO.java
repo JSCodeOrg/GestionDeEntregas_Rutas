@@ -13,4 +13,6 @@ public class PedidoDTO implements Serializable {
     private Long id;
     
     private String shippingAddress;
+
+    private Long userId;
 }

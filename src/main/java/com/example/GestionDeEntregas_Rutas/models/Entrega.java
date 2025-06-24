@@ -31,4 +31,7 @@ public class Entrega {
 
     @Column(name = "id_pedido")
     private Long pedidoId;
+
+    @Column(name = "user_id")
+    private Long userId;
 }

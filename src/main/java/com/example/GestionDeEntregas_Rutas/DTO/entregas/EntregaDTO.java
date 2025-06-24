@@ -15,4 +15,6 @@ public class EntregaDTO {
 
     private String direccion;
 
+    private Long user_id;
+
 }

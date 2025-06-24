@@ -1,15 +1,19 @@
 package com.example.GestionDeEntregas_Rutas.services.Entregas;
 
 import java.time.LocalDate;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.stereotype.Service;
 
 import com.example.GestionDeEntregas_Rutas.DTO.entregas.AsignacionDTO;
 import com.example.GestionDeEntregas_Rutas.DTO.entregas.EntregaDTO;
 import com.example.GestionDeEntregas_Rutas.DTO.pedidos.PedidoDTO;
+import com.example.GestionDeEntregas_Rutas.components.RoutingUtils;
 import com.example.GestionDeEntregas_Rutas.models.Asignacion;
 import com.example.GestionDeEntregas_Rutas.models.Entrega;
 import com.example.GestionDeEntregas_Rutas.models.Estado;
@@ -19,6 +23,7 @@ import com.example.GestionDeEntregas_Rutas.repositories.EntregasRepository;
 import com.example.GestionDeEntregas_Rutas.repositories.EstadoRepository;
 import com.example.GestionDeEntregas_Rutas.repositories.RepartidorRepository;
 import com.example.GestionDeEntregas_Rutas.security.JwtUtil;
+import com.example.GestionDeEntregas_Rutas.services.RabbitMQ.EntregaProducer;
 
 import jakarta.transaction.Transactional;
 import jakarta.ws.rs.NotFoundException;
@@ -42,6 +47,9 @@ public class EntregasService {
     private EntregaProducer entregaProducer;
 
     @Autowired
+    private RoutingUtils routingUtils;
+
+    @Autowired
     private JwtUtil jwtUtil;
 
     @Transactional
@@ -56,6 +64,7 @@ public class EntregasService {
             nueva_entrega.setEstadoId(estado_pendiente.getId_estado());
             nueva_entrega.setDireccion(pedido.getShippingAddress());
             nueva_entrega.setPedidoId(pedido.getId());
+            nueva_entrega.setUserId(pedido.getUserId());
 
             entregasRepository.save(nueva_entrega);
 
@@ -75,6 +84,7 @@ public class EntregasService {
             EntregaDTO dto = new EntregaDTO();
             dto.setId_entrega(entrega.getId_entrega());
             dto.setDireccion(entrega.getDireccion());
+            dto.setUser_id(entrega.getUserId());
 
             Estado estado = estadoRepository.findById(entrega.getEstadoId())
                     .orElseThrow(() -> new NotFoundException("No se ha encontrado el estado de un pedido"));
@@ -98,6 +108,7 @@ public class EntregasService {
             dto.setDireccion(entrega.getDireccion());
             dto.setEstado(estadoEntity.getNombre());
             dto.setPedido_id(entrega.getPedidoId());
+            dto.setUser_id(entrega.getUserId());
             return dto;
         });
     }
@@ -126,7 +137,6 @@ public class EntregasService {
 
             System.out.println("Estado ASIGNADA encontrado con ID: " + estado_ready.getId_estado());
 
-
             Asignacion asignacion = new Asignacion();
             asignacion.setRepartidor_id(repartidor);
             asignacion.setEntrega_id(entrega);
@@ -140,7 +150,7 @@ public class EntregasService {
 
             entregasRepository.save(entrega);
 
-            entregaProducer.enviarEntregaAsignada(pedido_id);
+            entregaProducer.enviarNotificacionAsignacion(pedido_id, entrega.getUserId());
 
             AsignacionDTO asignacionDTO = new AsignacionDTO();
             asignacionDTO.setEntrega_id(pedido_id);
@@ -153,5 +163,42 @@ public class EntregasService {
         catch (Exception e) {
             throw new RuntimeException("Ha ocurrido un error al asignar" + e.getMessage());
         }
+    }
+
+    public Page<EntregaDTO> obtenerRutaEntregas(String token) {
+        String user_id = jwtUtil.extractUsername(token);
+        Long user_id_long = Long.parseLong(user_id);
+
+        List<Asignacion> asignaciones = asignacionRepository.buscarPorIdRepartidor(user_id_long);
+
+        if (asignaciones.isEmpty()) {
+            throw new RuntimeException("El repartidor no tiene entregas asignadas");
+        }
+
+        List<Entrega> entregas = asignaciones.stream()
+                .map(Asignacion::getEntrega_id)
+                .collect(Collectors.toList());
+
+        System.out.println("llegó hasta el listado de entregas");
+        List<Entrega> entregasOrdenadas = routingUtils.ordenarEntregasGeograficamente(entregas);
+        System.out.println("Asignaciones encontradas" + entregasOrdenadas.size());
+
+        List<EntregaDTO> entregaDTOs = entregasOrdenadas.stream().map(entrega -> {
+            EntregaDTO dto = new EntregaDTO();
+            dto.setId_entrega(entrega.getId_entrega());
+            dto.setDireccion(entrega.getDireccion());
+            dto.setPedido_id(entrega.getPedidoId());
+
+            Estado estado = estadoRepository.findById(entrega.getEstadoId()).orElse(null);
+            if (estado != null) {
+                dto.setEstado(estado.getNombre());
+            } else {
+                dto.setEstado("DESCONOCIDO");
+            }
+
+            return dto;
+        }).collect(Collectors.toList());
+
+        return new PageImpl<>(entregaDTOs);
     }
 }
